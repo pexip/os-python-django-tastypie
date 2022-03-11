@@ -1,3 +1,9 @@
+python-django-tastypie (0.14.4-0pexip2) pexip; urgency=medium
+
+  * Patch target_field in relational filtering.
+
+ -- John Wright <john.wright@pexip.com>  Fri, 11 Mar 2022 11:25:41 +0000
+
 python-django-tastypie (0.14.4-0pexip1) pexip; urgency=medium
 
   * Prepare Pexip Packaging

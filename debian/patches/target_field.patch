@@ -1,0 +1,15 @@
+diff --git a/tastypie/resources.py b/tastypie/resources.py
+index 172ec24..74cd9b0 100644
+--- a/tastypie/resources.py
++++ b/tastypie/resources.py
+@@ -2091,8 +2091,8 @@ def build_filters(self, filters=None, ignore_bad_filters=False):
+             try:
+                 django_field_name = self.fields[field_name].attribute
+                 django_field = self._meta.object_class._meta.get_field(django_field_name)
+-                if hasattr(django_field, 'field'):
+-                    django_field = django_field.field  # related field
++                if hasattr(django_field, 'target_field'):
++                    django_field = django_field.target_field  # related field
+             except FieldDoesNotExist:
+                 raise InvalidFilterError("The '%s' field is not a valid field name" % field_name)
+ 

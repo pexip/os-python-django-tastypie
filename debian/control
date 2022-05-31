@@ -14,7 +14,7 @@ Homepage: http://django-tastypie.readthedocs.org/
 X-Python3-Version: >= 3.7
 Vcs-Browser: https://github.com/django-tastypie/django-tastypie
 Vcs-Git: https://github.com/django-tastypie/django-tastypie.git
-
+XS-Pexip-Upstream: http://deb.debian.org/debian/ buster
 
 Package: python3-django-tastypie
 Architecture: all

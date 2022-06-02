@@ -1,3 +1,9 @@
+python-django-tastypie (0.14.4-0pexip3) pexip; urgency=medium
+
+  * Initial bullseye build
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 02 Jun 2022 14:42:47 +0100
+
 python-django-tastypie (0.14.4-0pexip2) pexip; urgency=medium
 
   * Patch target_field in relational filtering.

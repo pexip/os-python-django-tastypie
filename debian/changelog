@@ -1,3 +1,9 @@
+python-django-tastypie (0.14.4-0+pexip24u8) pexip-bookworm; urgency=medium
+
+  * New versioning scheme
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Thu, 01 Feb 2024 16:21:54 +0000
+
 python-django-tastypie (0.14.4-0pexip7) pexip-bookworm; urgency=medium
 
   * Bookworm build for product distribution

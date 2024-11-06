@@ -91,7 +91,7 @@ modifying ``get_object_list``:
 
 .. testcode::
 
-    from django.utils import timezone
+    from tastypie.compat import timezone
     from myapp.models import MyModel
 
 
@@ -609,7 +609,7 @@ their own.:
 
 
     class UserModelAdmin(UserAdmin):
-        inlines = UserAdmin.inlines + [ApiKeyInline]
+        inlines = list(UserAdmin.inlines) + [ApiKeyInline]
 
 
     admin.site.unregister(User)

@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import base64
 from collections import OrderedDict
 import copy
 import datetime
 from decimal import Decimal
 import json
-from mock import patch, Mock
+from unittest.mock import patch, Mock
 import sys
 import time
 from unittest import skipIf
@@ -26,7 +24,8 @@ except ImportError:
 from django.http import HttpRequest, QueryDict, Http404
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils import timezone
+
+from tastypie.compat import timezone
 
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import Authorization
@@ -50,7 +49,8 @@ from tastypie.validation import FormValidation
 
 from core.models import (
     Note, NoteWithEditor, Subject, MediaBit, AutoNowNote, DateRecord, Counter,
-    MyDefaultPKModel, MyUUIDModel, MyRelatedUUIDModel, BigAutoNowModel,
+    MyDefaultPKModel, MyUUIDModel, MyRelatedUUIDModel, BigAutoNowModel, MyContainerItemModel,
+    MyContainerItemGroupingModel, MyContainerModel
 )
 from core.tests.mocks import MockRequest
 from core.utils import adjust_schema, SimpleHandler
@@ -202,10 +202,10 @@ class MangledBasicResource(BasicResource):
         if isinstance(data_dict, dict):
             if 'meta' in data_dict:
                 # Get rid of the "meta".
-                del(data_dict['meta'])
+                del data_dict['meta']
                 # Rename the objects.
                 data_dict['testobjects'] = copy.copy(data_dict['objects'])
-                del(data_dict['objects'])
+                del data_dict['objects']
 
         return data_dict
 
@@ -1461,6 +1461,39 @@ class CounterUpdateDetailResource(ModelResource):
     class Meta:
         queryset = Counter.objects.all()
         authorization = CounterAuthorization()
+
+
+class MyContainerItemModelResource(ModelResource):
+    parent = fields.ForeignKey('core.tests.resources.MyContainerModelResource', 'parent')
+
+    class Meta:
+        queryset = MyContainerItemModel.objects.all()
+        allowed_methods = ['get', 'put', 'post']
+        authorization = Authorization()
+        resource_name = 'my-container-item'
+
+
+class MyContainerItemGroupingModel(ModelResource):
+    parent = fields.ForeignKey('core.tests.resources.MyContainerModelResource', 'parent')
+    grouping_item = fields.ForeignKey(MyContainerItemModelResource, 'grouping_item')
+
+    class Meta:
+        queryset = MyContainerItemGroupingModel.objects.all()
+        allowed_methods = ['get', 'put', 'post']
+        authorization = Authorization()
+        resource_name = 'my-container-item-group'
+
+
+class MyContainerModelResource(ModelResource):
+    container_items = fields.ToManyField(MyContainerItemModelResource, 'item_set', blank=True)
+    container_grouping_items = fields.ToManyField(MyContainerItemGroupingModel, 'item_grouping_set', blank=True)
+
+    class Meta:
+        queryset = MyContainerModel.objects.all()
+        allowed_methods = ['get', 'put', 'post']
+        authorization = Authorization()
+        resource_name = 'my-container'
+        always_return_data = True
 
 
 @override_settings(ROOT_URLCONF='core.tests.resource_urls')
@@ -3634,7 +3667,7 @@ class ModelResourceTestCase(TestCase):
         request.method = 'GET'
 
         # Patch the ``created/updated`` defaults for testability.
-        with patch.object(resource.fields['created'], '_default', new=aware_datetime(2011, 9, 24, 0, 2)),\
+        with patch.object(resource.fields['created'], '_default', new=aware_datetime(2011, 9, 24, 0, 2)), \
                 patch.object(resource.fields['updated'], '_default', new=aware_datetime(2011, 9, 24, 0, 2)):
             resp = resource.get_schema(request)
 
@@ -5125,6 +5158,39 @@ class ModelResourceTestCase(TestCase):
 
         response = resource.patch_list(request)
         self.assertEqual(response.status_code, 202)
+
+    def test_saves_when_a_single_resource_is_used_on_multiple_to_many_resources(self):
+        container_resource = MyContainerModelResource(api_name='v1')
+        request = MockRequest()
+        request.GET = {'format': 'json'}
+        request.method = 'PUT'
+
+        container = MyContainerModel.objects.create(name='test')
+        resource_uri = '/api/v1/my-container/%s/' % container.id
+
+        request.set_body(json.dumps({
+            'resource_uri': resource_uri,
+            'id': container.id,
+            'name': 'foo',
+            'container_items': [
+                {
+                    'parent': resource_uri,
+                    'name': 'container item 1'
+                }
+            ],
+            'container_grouping_items': [
+                {
+                    'parent': resource_uri,
+                    'grouping_item': {
+                        'parent': resource_uri,
+                        'name': 'container item 2'
+                    }
+                }
+            ]
+        }))
+
+        resp = container_resource.put_detail(request)
+        self.assertEqual(resp.status_code, 200)
 
 
 class BasicAuthResourceTestCase(TestCase):

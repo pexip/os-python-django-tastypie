@@ -1,3 +1,9 @@
+python-django-tastypie (0.14.7-0+pexip24u1) pexip; urgency=medium
+
+  * New upstream release
+
+ -- Steve McIntyre <steve.mcintyre@pexip.com>  Wed, 06 Nov 2024 11:58:37 +0000
+
 python-django-tastypie (0.14.4-0+pexip24u8) pexip-bookworm; urgency=medium
 
   * New versioning scheme

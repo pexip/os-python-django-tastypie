@@ -1,3 +1,5 @@
+Patch target_field in relational filtering.
+
 diff --git a/tastypie/resources.py b/tastypie/resources.py
 index 172ec24..74cd9b0 100644
 --- a/tastypie/resources.py

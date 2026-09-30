@@ -9,4 +9,24 @@ export PYBUILD_NAME=python-django-tastypie
 #override_dh_auto_clean:
 #	dh_auto_clean
 
+# settings_$name:$testSuiteName
+TEST_SUITES := \
+	basic:basic \
+	related:related_resource \
+	alphanumeric:alphanumeric \
+	authorization:authorization \
+	content_gfk:content_gfk \
+	customuser:customuser \
+	namespaced:namespaced \
+	slashless:slashless \
+	validation:validation
+
+settings = $(firstword $(subst :, ,$1))
+package  = $(lastword $(subst :, ,$1))
+
+override_dh_auto_test: export PYTHONPATH=$(CURDIR):$(CURDIR)/tests
 override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	django-admin test -p '*' core.tests --settings=settings_core
+	$(foreach s,$(TEST_SUITES), django-admin test $(call package,$s).tests --settings=settings_$(call settings,$s) && ) true
+endif

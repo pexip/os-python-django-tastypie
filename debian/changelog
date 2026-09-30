@@ -2,6 +2,7 @@ python-django-tastypie (0.14.7-0+pexip25u3) pexip-trixie; urgency=medium
 
   * run tests
   * d/p: apply upstream django 5.1 compat patch
+  * d/p: don't import datetime_safe
 
  -- Huw Jones <huw@pexip.com>  Wed, 30 Sep 2026 12:27:53 +0100
 
